@@ -17,7 +17,7 @@ defmodule Silicon.Hash do
 
   def ripemd160(data), do: :crypto.hash(:ripemd160, data)
 
-  def hash160(data), do: :crypto.hash(:ripemd160, :crypto.hash(:sha256, data))
+  def hash160(data), do: data |> sha256() |> ripemd160()
 
   def double_sha256(data), do: data |> sha256() |> sha256()
 end
