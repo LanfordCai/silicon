@@ -12,32 +12,12 @@ defmodule Silicon.AESTest do
     Enum.each(aes_cbc_pkcs7_test_vectors(), &do_cbc_pkcs7_test(&1))
   end
 
-  test "aes_ecb" do
-    Enum.each(aes_ecb_test_vectors(), &do_ecb_test(&1))
-  end
-
   test "aes_gcm" do
     Enum.each(aes_gcm_test_vectors(), &do_gcm_test(&1))
   end
 
   test "aes_ctr" do
     Enum.each(aes_ctr_test_vectors(), &do_ctr_test(&1))
-  end
-
-  defp do_ecb_test(%{key: key, ciphertext: ct, plaintext: pt} = vector) do
-    [key, ct, pt] =
-      [key, ct, pt]
-      |> Enum.map(&Base.decode16!(&1, case: :mixed))
-
-    ciphertext = AES.ECB.encrypt(key, pt, :none)
-
-    assert ciphertext == ct,
-           "aes_ecb: failed encrypt in #{inspect(vector)}. expect: #{ct}, got: #{ciphertext}"
-
-    plaintext = AES.ECB.decrypt(key, ct, :none)
-
-    assert plaintext == pt,
-           "aes_ecb: failed decrypt in #{inspect(vector)}, expect: #{pt}, got: #{plaintext}"
   end
 
   defp do_cbc_test(%{key: key, iv: iv, ciphertext: ct, plaintext: pt} = vector) do

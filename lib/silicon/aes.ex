@@ -29,34 +29,8 @@ defmodule Silicon.AES do
     end
   end
 
-  defmodule ECB do
-    alias Silicon.Padding.PKCS7
-    @block_size 16
-
-    def encrypt(key, plaintext, padding \\ :pkcs7)
-        when byte_size(key) in [16, 24, 32] and padding in [:pkcs7, :none] do
-      plaintext =
-        case padding do
-          :pkcs7 -> PKCS7.pad(plaintext, @block_size)
-          :none -> plaintext
-        end
-
-      :crypto.block_encrypt(:aes_ecb, key, plaintext)
-    end
-
-    def decrypt(key, ciphertext, padding \\ :pkcs7)
-        when byte_size(key) in [16, 24, 32] and padding in [:pkcs7, :none] do
-      plaintext = :crypto.block_decrypt(:aes_ecb, key, ciphertext)
-
-      case padding do
-        :pkcs7 -> PKCS7.unpad(plaintext)
-        :none -> plaintext
-      end
-    end
-  end
-
   defmodule GCM do
-    def encrypt(key, plaintext, iv, aad, tag_length \\ 16)
+    def encrypt(key, plaintext, iv, aad, tag_length)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) >= 1 and tag_length in 1..16 do
       {ciphertext, tag} = :crypto.block_encrypt(:aes_gcm, key, iv, {aad, plaintext, tag_length})
       [iv: iv, ciphertext: ciphertext, tag: tag]

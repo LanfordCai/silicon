@@ -26,16 +26,6 @@ defmodule Silicon.DataCase.AES do
     |> prepare_aes_cbc_pkcs7_test_vectors()
   end
 
-  def aes_ecb_test_vectors do
-    path = "#{@vectors_path}/ecb"
-    keywords = ["COUNT", "KEY", "PLAINTEXT", "CIPHERTEXT"]
-
-    path
-    |> File.ls!()
-    |> Enum.map(&Path.join([path, &1]))
-    |> Enum.flat_map(&prepare_aes_test_vectors(:ecb, &1, keywords))
-  end
-
   def aes_gcm_test_vectors do
     path = "#{@vectors_path}/gcm"
     keywords = ["Count", "Key", "IV", "PT", "AAD", "CT", "Tag"]
