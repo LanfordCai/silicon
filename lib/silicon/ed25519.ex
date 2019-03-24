@@ -1,4 +1,6 @@
 defmodule Silicon.Ed25519 do
+  @moduledoc false
+
   @secret_bytes 32
   @public_key_bytes 32
   @secret_key_bytes 64

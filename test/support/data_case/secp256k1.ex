@@ -46,11 +46,11 @@ defmodule Silicon.DataCase.Secp256k1 do
     end)
   end
 
-  def wycheproof_ecdsa_vectors do
-    "#{@vectors_path}/ecdsa_secp256k1_sha256_test.json"
-    |> File.read!()
-    |> Poison.decode!()
-    |> Map.get("testGroups")
-  end
+  # def wycheproof_ecdsa_vectors do
+  #   "#{@vectors_path}/ecdsa_secp256k1_sha256_test.json"
+  #   |> File.read!()
+  #   |> Poison.decode!()
+  #   |> Map.get("testGroups")
+  # end
 
 end
