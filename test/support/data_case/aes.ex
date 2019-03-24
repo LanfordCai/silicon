@@ -1,14 +1,6 @@
 defmodule Silicon.DataCase.AES do
-  @moduledoc """
-  The test vectors of AES are from:
-  1. ciphers without PKCS7 padding
-  https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/block-ciphers#AES
-  https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/CAVP-TESTING-BLOCK-CIPHER-MODES#GCMVS
+  @moduledoc false
 
-  2. ciphers with PKCS7 padding
-  https://raw.githubusercontent.com/google/wycheproof/master/testvectors/aes_cbc_pkcs5_test.json
-  https://crypto.stackexchange.com/questions/9043/what-is-the-difference-between-pkcs5-padding-and-pkcs7-padding
-  """
   @vectors_path "test/test_vectors/aes"
 
   def aes_cbc_test_vectors do

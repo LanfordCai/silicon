@@ -1,7 +1,5 @@
 defmodule Silicon.DataCase.Hash do
-  @moduledoc """
-
-  """
+  @moduledoc false
 
   @vectors_path "test/test_vectors"
 
@@ -42,8 +40,6 @@ defmodule Silicon.DataCase.Hash do
     end
   end)
 
-  # SHA3 SEE: https://csrc.nist.gov/Projects/cryptographic-algorithm-validation-program/Secure-Hashing
-  # Keccak origin SEE: https://keccak.team/archives.html Known-answer and Monte Carlo test results part
   defp prepare_sha3_test_vectors(path) do
     path
     |> File.stream!()
@@ -67,8 +63,6 @@ defmodule Silicon.DataCase.Hash do
     |> Enum.to_list()
   end
 
-  # SEE: https://github.com/jedisct1/crypto-test-vectors
-  # SEE: https://pynacl.readthedocs.io/en/latest/vectors/blake2_vectors/
   defp prepare_blake2b_test_vectors(path, :no_salt_no_pers) do
     path
     |> File.stream!()

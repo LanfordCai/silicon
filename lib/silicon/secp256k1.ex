@@ -1,8 +1,10 @@
 defmodule Silicon.Secp256k1 do
+  @moduledoc false
+
   @spec key_pair() :: {pubkey :: binary(), privkey :: binary()}
   def key_pair do
     privkey = :crypto.strong_rand_bytes(32)
-    pubkey = :libsecp256k1.ec_pubkey_create(privkey, :uncompressed)
+    {:ok, pubkey} = :libsecp256k1.ec_pubkey_create(privkey, :uncompressed)
     {pubkey, privkey}
   end
 
@@ -13,12 +15,22 @@ defmodule Silicon.Secp256k1 do
     pubkey
   end
 
+  def privkey_tweak_add(privkey, tweak) when is_binary(privkey) and is_binary(tweak) do
+    {:ok, result} = :libsecp256k1.ec_privkey_tweak_add(privkey, tweak)
+    result
+  end
+
+  def privkey_tweak_mul(privkey, tweak) when is_binary(privkey) and is_binary(tweak) do
+    {:ok, result} = :libsecp256k1.ec_privkey_tweak_mul(privkey, tweak)
+    result
+  end
+
   def pubkey_tweak_add(pubkey, tweak) when is_binary(pubkey) and is_binary(tweak) do
     {:ok, result} = :libsecp256k1.ec_pubkey_tweak_add(pubkey, tweak)
     result
   end
 
-  def pubkey_tweak_mult(pubkey, tweak) when is_binary(pubkey) and is_binary(tweak) do
+  def pubkey_tweak_mul(pubkey, tweak) when is_binary(pubkey) and is_binary(tweak) do
     {:ok, result} = :libsecp256k1.ec_pubkey_tweak_mul(pubkey, tweak)
     result
   end
@@ -29,7 +41,7 @@ defmodule Silicon.Secp256k1 do
   end
 
   def sign_compact(data, privkey) do
-    {:ok, <<r::256, s::256>>, recovery_id} =
+    {:ok, <<r::bytes-32, s::bytes-32>>, recovery_id} =
       :libsecp256k1.ecdsa_sign_compact(data, privkey, :nonce_function_rfc6979, <<>>)
 
     {r, s, recovery_id}

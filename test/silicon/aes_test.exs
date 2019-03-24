@@ -1,4 +1,16 @@
 defmodule Silicon.AESTest do
+  @moduledoc """
+  The test vectors of AES are from:
+  1. AES-CBC: 
+    https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/block-ciphers#AES
+  2. AES-CBC-PKCS7:
+    https://raw.githubusercontent.com/google/wycheproof/master/testvectors/aes_cbc_pkcs5_test.json
+  3. AES-GCM:
+    https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/CAVP-TESTING-BLOCK-CIPHER-MODES#GCMVS
+  4. AES-CTR:
+    Got from https://github.com/pyca/cryptography, which is the test vectors from RFC 3686
+  """
+
   use ExUnit.Case
   import Silicon.DataCase.AES
 
