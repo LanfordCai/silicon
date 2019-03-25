@@ -52,5 +52,4 @@ defmodule Silicon.DataCase.Secp256k1 do
   #   |> Poison.decode!()
   #   |> Map.get("testGroups")
   # end
-
 end

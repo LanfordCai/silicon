@@ -1,11 +1,18 @@
 defmodule Silicon.AES do
-  require Logger
+  @moduledoc """
+  Implemented AES-CBC, AES-CBC-PKCS7, AES-CTR, AES-GCM
+  """
 
-  # NOTE: :crypto module disabled padding, and we have to do it by ourselves.
   defmodule CBC do
+    @moduledoc """
+    """
+
+    @type padding :: :pkcs7 | :none
+
     alias Silicon.Padding.PKCS7
     @block_size 16
 
+    @spec encrypt(binary(), binary(), binary(), padding()) :: [iv: binary(), ciphertext: binary()]
     def encrypt(key, plaintext, iv, padding \\ :pkcs7)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) == 16 and padding in [:pkcs7, :none] do
       plaintext =
@@ -18,6 +25,7 @@ defmodule Silicon.AES do
       [iv: iv, ciphertext: ciphertext]
     end
 
+    @spec decrypt(binary(), binary(), binary(), padding()) :: binary()
     def decrypt(key, ciphertext, iv, padding \\ :pkcs7)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) == 16 and padding in [:pkcs7, :none] do
       plaintext = :crypto.block_decrypt(:aes_cbc, key, iv, ciphertext)
@@ -30,12 +38,21 @@ defmodule Silicon.AES do
   end
 
   defmodule GCM do
+    @moduledoc """
+    """
+
+    @spec encrypt(binary(), binary(), binary(), binary(), integer()) :: [
+            iv: binary(),
+            ciphertext: binary(),
+            tag: binary()
+          ]
     def encrypt(key, plaintext, iv, aad, tag_length)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) >= 1 and tag_length in 1..16 do
       {ciphertext, tag} = :crypto.block_encrypt(:aes_gcm, key, iv, {aad, plaintext, tag_length})
       [iv: iv, ciphertext: ciphertext, tag: tag]
     end
 
+    @spec decrypt(binary(), binary(), binary(), binary(), binary()) :: binary()
     def decrypt(key, ciphertext, iv, aad, tag)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) >= 1 and
                byte_size(tag) in 1..16 do
@@ -44,6 +61,10 @@ defmodule Silicon.AES do
   end
 
   defmodule CTR do
+    @moduledoc """
+    """
+
+    @spec encrypt(binary(), binary(), binary()) :: [iv: binary(), ciphertext: binary()]
     def encrypt(key, plaintext, iv)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) == 16 do
       {_new_state, ciphertext} =
@@ -54,6 +75,7 @@ defmodule Silicon.AES do
       [iv: iv, ciphertext: ciphertext]
     end
 
+    @spec decrypt(binary(), binary(), binary()) :: binary()
     def decrypt(key, ciphertext, iv)
         when byte_size(key) in [16, 24, 32] and byte_size(iv) == 16 do
       {_new_state, plaintext} =

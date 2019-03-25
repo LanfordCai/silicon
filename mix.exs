@@ -1,6 +1,8 @@
 defmodule Silicon.MixProject do
   use Mix.Project
 
+  @github_url "https://github.com/LanfordCai/silicon"
+
   def project do
     [
       app: :silicon,
@@ -8,6 +10,9 @@ defmodule Silicon.MixProject do
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      description: description(),
+      package: package(),
+      source_url: @github_url,
       deps: deps(),
       test_coverage: [tool: ExCoveralls]
     ]
@@ -34,6 +39,22 @@ defmodule Silicon.MixProject do
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: [:test]}
+    ]
+  end
+
+  defp description do
+    """
+    A wrapper of Elixir/Erlang crypto packages. Lots of extra test cases added.
+    """
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      maintainers: ["lanfordcai@outlook.com"],
+      links: %{
+        "GitHub" => @github_url
+      }
     ]
   end
 end

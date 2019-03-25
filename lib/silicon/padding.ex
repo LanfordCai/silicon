@@ -1,11 +1,17 @@
 defmodule Silicon.Padding do
-  @moduledoc false
+  @moduledoc """
+  """
+
   defmodule PKCS7 do
+    @moduledoc false
+
+    @spec pad(data :: binary(), block_size :: integer()) :: binary()
     def pad(data, block_size) do
       to_add = block_size - rem(byte_size(data), block_size)
       data <> :binary.copy(<<to_add>>, to_add)
     end
 
+    @spec unpad(data :: binary()) :: binary() | {:error, term()}
     def unpad(<<>>), do: {:error, :invalid_padding}
 
     def unpad(data, block_size \\ 16) do

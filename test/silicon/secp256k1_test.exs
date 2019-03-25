@@ -7,14 +7,14 @@ defmodule Silicon.Secp256k1Test do
 
   use ExUnit.Case
   import Silicon.DataCase.Secp256k1
-  import Silicon.{Hash, Secp256k1}
+  import Silicon.Secp256k1
 
   test "key_pair" do
     1..1000
     |> Enum.map(fn _ -> key_pair() end)
     |> Enum.each(fn {pubkey, privkey} ->
       assert byte_size(privkey) == 32
-      assert derive_pubkey(privkey, :uncompressed) == pubkey
+      assert derive_pubkey(privkey, :uncompressed) == {:ok, pubkey}
     end)
   end
 
@@ -24,7 +24,7 @@ defmodule Silicon.Secp256k1Test do
       msg = Base.decode16!(msg, case: :lower)
       sig = Base.decode16!(String.replace_suffix(sig, "01", ""), case: :lower)
       privkey = Base.decode16!(privkey, case: :lower)
-      pubkey = derive_pubkey(privkey, :uncompressed)
+      {:ok, pubkey} = derive_pubkey(privkey, :uncompressed)
       assert verify(msg, sig, pubkey) == :ok
     end)
   end
@@ -36,7 +36,8 @@ defmodule Silicon.Secp256k1Test do
       privkey = Base.decode16!(privkey, case: :lower)
       sig = String.replace_suffix(sig, "01", "")
 
-      assert Base.encode16(sign(msg, privkey), case: :lower) == sig
+      {:ok, signature} = sign(msg, privkey)
+      assert Base.encode16(signature, case: :lower) == sig
     end)
   end
 
@@ -45,19 +46,13 @@ defmodule Silicon.Secp256k1Test do
     |> Enum.each(fn %{"seckey" => privkey, "compressed" => cpubkey, "pubkey" => pubkey} ->
       privkey = Base.decode16!(privkey, case: :lower)
 
-      uncompressed_pubkey =
-        privkey
-        |> derive_pubkey(:uncompressed)
-        |> Base.encode16(case: :lower)
+      {:ok, uncompressed_pubkey} = derive_pubkey(privkey, :uncompressed)
 
-      assert uncompressed_pubkey == pubkey
+      assert Base.encode16(uncompressed_pubkey, case: :lower) == pubkey
 
-      compressed_pubkey =
-        privkey
-        |> derive_pubkey(:compressed)
-        |> Base.encode16(case: :lower)
+      {:ok, compressed_pubkey} = derive_pubkey(privkey, :compressed)
 
-      assert compressed_pubkey == cpubkey
+      assert Base.encode16(compressed_pubkey, case: :lower) == cpubkey
     end)
   end
 
@@ -66,8 +61,8 @@ defmodule Silicon.Secp256k1Test do
     |> Enum.each(fn %{"compressed" => cpubkey, "pubkey" => pubkey} ->
       cpubkey = Base.decode16!(cpubkey, case: :lower)
       pubkey = Base.decode16!(pubkey, case: :lower)
-      assert compress_pubkey(pubkey) == cpubkey
-      assert decompress_pubkey(cpubkey) == pubkey
+      assert compress_pubkey(pubkey) == {:ok, cpubkey}
+      assert decompress_pubkey(cpubkey) == {:ok, pubkey}
     end)
   end
 
@@ -77,7 +72,7 @@ defmodule Silicon.Secp256k1Test do
       [pubkey, tweak, tweaked] =
         Enum.map([pubkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      pubkey_tweak_add(pubkey, tweak) == tweaked
+      pubkey_tweak_add(pubkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -87,7 +82,7 @@ defmodule Silicon.Secp256k1Test do
       [pubkey, tweak, tweaked] =
         Enum.map([pubkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      pubkey_tweak_mul(pubkey, tweak) == tweaked
+      pubkey_tweak_mul(pubkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -97,7 +92,7 @@ defmodule Silicon.Secp256k1Test do
       [privkey, tweak, tweaked] =
         Enum.map([privkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      privkey_tweak_add(privkey, tweak) == tweaked
+      privkey_tweak_add(privkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -107,7 +102,7 @@ defmodule Silicon.Secp256k1Test do
       [privkey, tweak, tweaked] =
         Enum.map([privkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      privkey_tweak_mul(privkey, tweak) == tweaked
+      privkey_tweak_mul(privkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -115,13 +110,13 @@ defmodule Silicon.Secp256k1Test do
     Enum.each(1..1000, fn _ ->
       {pubkey, privkey} = key_pair()
       data = :crypto.strong_rand_bytes(32)
-      {r, s, recovery_id} = sign_compact(data, privkey)
-  
-      assert verify_compact(data, r <> s, pubkey) == :ok
-      assert recover_compact(data, r <> s, recovery_id, :uncompressed) == {:ok, pubkey}
+      {:ok, sig, recovery_id} = sign_compact(data, privkey)
 
-      compressed_pubkey = compress_pubkey(pubkey)
-      assert recover_compact(data, r <> s, recovery_id, :compressed) == {:ok, compressed_pubkey}
+      assert verify_compact(data, sig, pubkey) == :ok
+      assert recover_compact(data, sig, recovery_id, :uncompressed) == {:ok, pubkey}
+
+      {:ok, compressed_pubkey} = compress_pubkey(pubkey)
+      assert recover_compact(data, sig, recovery_id, :compressed) == {:ok, compressed_pubkey}
     end)
   end
 
@@ -160,10 +155,10 @@ defmodule Silicon.Secp256k1Test do
     {:SubjectPublicKeyInfo, {:AlgorithmIdentifier, _, _}, pubkey} =
       :public_key.der_decode(:SubjectPublicKeyInfo, public)
 
-    <<_::8, shared_secret::binary>> =
-      pubkey
-      |> pubkey_tweak_mul(privkey)
-      |> compress_pubkey()
+    {:ok, tweaked} = pubkey_tweak_mul(pubkey, privkey)
+    {:ok, compressed_tweaked} = compress_pubkey(tweaked)
+
+    <<_::8, shared_secret::binary>> = compressed_tweaked
 
     assert result in ["valid", "acceptable"] and
              Base.encode16(shared_secret, case: :lower) == shared

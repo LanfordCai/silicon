@@ -183,19 +183,19 @@ defmodule Silicon.HashTest do
 
   describe "blake2b test" do
     test "blake2b_224" do
-      do_test(:blake2b, :blake2b_224, &blake2b_224/4)
+      do_test(:blake2b, :blake2b_224, &blake2b_224/3)
     end
 
     test "blake2b_256" do
-      do_test(:blake2b, :blake2b_256, &blake2b_256/4)
+      do_test(:blake2b, :blake2b_256, &blake2b_256/3)
     end
 
     test "blake2b_384" do
-      do_test(:blake2b, :blake2b_384, &blake2b_384/4)
+      do_test(:blake2b, :blake2b_384, &blake2b_384/3)
     end
 
     test "blake2b_512" do
-      do_test(:blake2b, :blake2b_512, &blake2b_512/4)
+      do_test(:blake2b, :blake2b_512, &blake2b_512/3)
     end
   end
 
@@ -227,7 +227,7 @@ defmodule Silicon.HashTest do
       [msg, key, salt, pers]
       |> Enum.map(&Base.decode16!(&1, case: :lower))
 
-    digest = Base.encode16(func.(msg, key, salt, pers), case: :lower)
+    digest = Base.encode16(func.(msg, key, salt: salt, personal: pers), case: :lower)
     expected_digest = String.downcase(out)
 
     {digest, expected_digest}
