@@ -1,6 +1,5 @@
 defmodule Silicon.Padding do
-  @moduledoc """
-  """
+  @moduledoc false
 
   defmodule PKCS7 do
     @moduledoc false

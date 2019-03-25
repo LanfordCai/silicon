@@ -34,8 +34,8 @@ defmodule Silicon.AESTest do
 
   defp do_cbc_test(%{key: key, iv: iv, ciphertext: ct, plaintext: pt} = vector) do
     [key, iv, ct, pt] = [key, iv, ct, pt] |> Enum.map(&Base.decode16!(&1, case: :mixed))
-    [iv: _iv, ciphertext: ciphertext] = AES.CBC.encrypt(key, pt, iv, :none)
-    plaintext = AES.CBC.decrypt(key, ct, iv, :none)
+    [iv: _iv, ciphertext: ciphertext] = AES.cbc_encrypt(key, pt, iv, :none)
+    plaintext = AES.cbc_decrypt(key, ct, iv, :none)
 
     assert ciphertext == ct,
            "failed encrypt in #{inspect(vector)}. expect: #{ct}, got: #{ciphertext}"
@@ -48,8 +48,8 @@ defmodule Silicon.AESTest do
          %{"ct" => ct, "iv" => iv, "key" => key, "msg" => msg, "result" => result} = vector
        ) do
     [iv, key, msg, ct] = [iv, key, msg, ct] |> Enum.map(&Base.decode16!(&1, case: :lower))
-    [iv: _, ciphertext: ciphertext] = AES.CBC.encrypt(key, msg, iv)
-    plaintext = AES.CBC.decrypt(key, ct, iv)
+    [iv: _, ciphertext: ciphertext] = AES.cbc_encrypt(key, msg, iv)
+    plaintext = AES.cbc_decrypt(key, ct, iv)
 
     case result do
       "invalid" ->
@@ -72,7 +72,7 @@ defmodule Silicon.AESTest do
       |> Enum.map(&Base.decode16!(&1, case: :mixed))
 
     [iv: _iv, ciphertext: ciphertext, tag: ciphertag] =
-      AES.GCM.encrypt(key, pt, iv, aad, byte_size(tag))
+      AES.gcm_encrypt(key, pt, iv, aad, byte_size(tag))
 
     assert ciphertext == ct,
            "aes_gcm: encryption failed! vector: #{inspect(vector)}"
@@ -80,7 +80,7 @@ defmodule Silicon.AESTest do
     assert ciphertag == tag,
            "aes_gcm: encryption failed! vector: #{inspect(vector)}"
 
-    plaintext = AES.GCM.decrypt(key, ct, iv, aad, tag)
+    plaintext = AES.gcm_decrypt(key, ct, iv, aad, tag)
 
     assert plaintext == pt,
            "aes_gcm: decryption failed! vector: #{inspect(vector)}"
@@ -91,7 +91,7 @@ defmodule Silicon.AESTest do
       [key, iv, ct, tag, aad]
       |> Enum.map(&Base.decode16!(&1, case: :mixed))
 
-    assert AES.GCM.decrypt(key, ct, iv, aad, tag) == :error
+    assert AES.gcm_decrypt(key, ct, iv, aad, tag) == :error
   end
 
   def do_ctr_test(%{key: key, iv: iv, ciphertext: ct, plaintext: pt} = vector) do
@@ -99,12 +99,12 @@ defmodule Silicon.AESTest do
       [key, iv, ct, pt]
       |> Enum.map(&Base.decode16!(&1))
 
-    [iv: _iv, ciphertext: ciphertext] = AES.CTR.encrypt(key, pt, iv)
+    [iv: _iv, ciphertext: ciphertext] = AES.ctr_encrypt(key, pt, iv)
 
     assert ciphertext == ct,
            "aes_ctr: failed encrypt in #{inspect(vector)}. expect: #{ct}, got: #{ciphertext}"
 
-    plaintext = AES.CTR.decrypt(key, ct, iv)
+    plaintext = AES.ctr_decrypt(key, ct, iv)
 
     assert plaintext == pt,
            "aes_ctr: failed decrypt in #{inspect(vector)}, expect: #{pt}, got: #{plaintext}"
