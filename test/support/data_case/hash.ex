@@ -51,7 +51,7 @@ defmodule Silicon.DataCase.Hash do
     |> Stream.chunk_every(3)
     |> Stream.reject(fn ["Len = " <> bit_len, _, _] ->
       # NOTE: We only support hash byte strings
-      String.to_integer(bit_len) |> rem(8) != 0
+      rem(String.to_integer(bit_len), 8) != 0
     end)
     |> Stream.map(fn ["Len = " <> bit_len, "Msg = " <> msg, "MD = " <> digest] ->
       %{

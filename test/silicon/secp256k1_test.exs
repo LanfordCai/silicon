@@ -22,10 +22,13 @@ defmodule Silicon.Secp256k1Test do
     sign_vectors()
     |> Enum.each(fn %{"msg" => msg, "privkey" => privkey, "sig" => sig} ->
       msg = Base.decode16!(msg, case: :lower)
-      sig = Base.decode16!(String.replace_suffix(sig, "01", ""), case: :lower)
+      valid_sig = Base.decode16!(String.replace_suffix(sig, "01", ""), case: :lower)
+      invalid_sig = Base.decode16!(sig, case: :lower)
       privkey = Base.decode16!(privkey, case: :lower)
       {:ok, pubkey} = derive_pubkey(privkey, :uncompressed)
-      assert verify(msg, sig, pubkey) == :ok
+
+      assert verify(msg, valid_sig, pubkey) == :ok
+      refute verify(msg, invalid_sig, pubkey) == :ok
     end)
   end
 
@@ -72,7 +75,12 @@ defmodule Silicon.Secp256k1Test do
       [pubkey, tweak, tweaked] =
         Enum.map([pubkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      pubkey_tweak_add(pubkey, tweak) == {:ok, tweaked}
+      assert pubkey_tweak_add(pubkey, tweak) == {:ok, tweaked}
+
+      {:ok, compressed_pubkey} = compress_pubkey(pubkey)
+      {:ok, compressed_tweaked} = pubkey_tweak_add(compressed_pubkey, tweak)
+
+      assert {:ok, ^tweaked} = decompress_pubkey(compressed_tweaked)
     end)
   end
 
@@ -82,7 +90,12 @@ defmodule Silicon.Secp256k1Test do
       [pubkey, tweak, tweaked] =
         Enum.map([pubkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      pubkey_tweak_mul(pubkey, tweak) == {:ok, tweaked}
+      assert pubkey_tweak_mul(pubkey, tweak) == {:ok, tweaked}
+
+      {:ok, compressed_pubkey} = compress_pubkey(pubkey)
+      {:ok, compressed_tweaked} = pubkey_tweak_mul(compressed_pubkey, tweak)
+
+      assert {:ok, ^tweaked} = decompress_pubkey(compressed_tweaked)
     end)
   end
 
@@ -92,7 +105,7 @@ defmodule Silicon.Secp256k1Test do
       [privkey, tweak, tweaked] =
         Enum.map([privkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      privkey_tweak_add(privkey, tweak) == {:ok, tweaked}
+      assert privkey_tweak_add(privkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -102,7 +115,7 @@ defmodule Silicon.Secp256k1Test do
       [privkey, tweak, tweaked] =
         Enum.map([privkey, tweak, tweaked], &Base.decode16!(&1, case: :lower))
 
-      privkey_tweak_mul(privkey, tweak) == {:ok, tweaked}
+      assert privkey_tweak_mul(privkey, tweak) == {:ok, tweaked}
     end)
   end
 
@@ -123,24 +136,6 @@ defmodule Silicon.Secp256k1Test do
   test "wycheproof_ecdh" do
     Enum.each(wycheproof_ecdh_vectors(), &do_ecdh_test(&1))
   end
-
-  # test "wycheproof_ecdsa" do
-  #   wycheproof_ecdsa_vectors()
-  #   |> Enum.each(fn %{"key" => key, "tests" => tests} ->
-  #     pubkey = Base.decode16!(key["uncompressed"], case: :lower)
-  #     tests
-  #     |> Enum.each(fn %{"tcId" => id, "msg" => msg, "sig" => sig, "result" => result, "comment" => comment} ->
-  #       msg = sha256(Base.decode16!(msg, case: :lower))
-  #       sig = Base.decode16!(sig, case: :lower)
-  #       verify_result = verify(msg, sig, pubkey)
-  #       if result == "valid" and comment != "signature malleability" do
-  #         assert verify_result == :ok, "Failed on vector #{id}, Expect :ok, got #{inspect(verify_result)}" 
-  #       else
-  #         refute verify_result == :ok, "Failed on vector #{id}. Expect error, got #{inspect(verify_result)}" 
-  #       end
-  #     end)
-  #   end)
-  # end
 
   defp do_ecdh_test(%{
          "result" => result,

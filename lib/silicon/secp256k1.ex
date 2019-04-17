@@ -1,5 +1,6 @@
 defmodule Silicon.Secp256k1 do
   @moduledoc """
+  A wrapper of libsecp256k1
   """
 
   @type pubkey :: binary()
@@ -48,7 +49,7 @@ defmodule Silicon.Secp256k1 do
 
   @spec sign_compact(binary(), privkey()) :: {:ok, signature(), recovery_id()} | {:error, term()}
   def sign_compact(data, privkey) do
-    :libsecp256k1.ecdsa_sign_compact(data, privkey, :nonce_function_rfc6979, <<>>)
+    :libsecp256k1.ecdsa_sign_compact(data, privkey, :default, <<>>)
   end
 
   @spec compress_pubkey(uncompressed_pubkey :: pubkey()) :: {:ok, pubkey()} | {:error, term()}

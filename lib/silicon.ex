@@ -42,5 +42,7 @@ defmodule Silicon do
 
   * `https://github.com/btccom/secp256k1-go`
   * `https://github.com/google/wycheproof/tree/master/testvectors`
+  
+  For wycheproof test vectors, We only test against ecdh vectors. For ecdsa tests, some cases might fail because that the Bitcoin-Secp256k1 seems more strict. See an example [here](https://github.com/bitcoin-core/secp256k1/issues/609). We don't have a good way to distinguish those cases [now](https://github.com/google/wycheproof/issues/70).
   """
 end

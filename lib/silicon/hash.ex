@@ -1,5 +1,6 @@
 defmodule Silicon.Hash do
   @moduledoc """
+  Support SHA2/SHA3/Keccak1600/Blake2b/Ripemd160/MD5
   """
 
   [224, 256, 384, 512]
@@ -20,12 +21,14 @@ defmodule Silicon.Hash do
             binary(),
             binary(),
             keyword()
-          ) :: binary()
+          ) :: binary() | :error
     def unquote(blake2b_func)(data, key \\ <<>>, options \\ []) do
       salt = options[:salt] || <<>>
       personal = options[:personal] || <<>>
 
       Blake2.Blake2b.hash(data, key, unquote(bytes), salt, personal)
+    rescue
+      _ -> :error
     end
   end)
 

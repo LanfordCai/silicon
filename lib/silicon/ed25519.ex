@@ -1,5 +1,6 @@
 defmodule Silicon.Ed25519 do
   @moduledoc """
+  A wrapper of libdecaf
   """
 
   @type public_key :: binary()

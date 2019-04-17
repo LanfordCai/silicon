@@ -200,7 +200,8 @@ defmodule Silicon.HashTest do
   end
 
   def do_test(algo, name, func) do
-    test_vectors(name)
+    name
+    |> test_vectors()
     |> Enum.each(fn vector ->
       {digest, expected_digest} = digest(algo, vector, func)
 
