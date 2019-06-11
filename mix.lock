@@ -1,6 +1,6 @@
 %{
   "blake2": {:git, "https://github.com/riverrun/blake2_elixir.git", "bed86aa0477ce064ef62a34f783064a342a218f8", []},
-  "blake2_elixir": {:git, "https://github.com/riverrun/blake2_elixir.git", "bed86aa0477ce064ef62a34f783064a342a218f8", []},
+  "blake2_elixir": {:hex, :blake2_elixir, "0.8.0", "7b2284336bed6982b1532e85e4efe5f007e3de3a6d90584f4416c11ebb37d965", [:make, :mix], [{:elixir_make, "~> 0.5", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], [], "hexpm"},
   "certifi": {:hex, :certifi, "2.5.1", "867ce347f7c7d78563450a18a6a28a8090331e77fa02380b4a21962a65d36ee5", [:rebar3], [{:parse_trans, "~>3.3", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm"},
   "crc": {:hex, :crc, "0.9.1", "0b1ee24ca7bcadd687edb3494dbdc560fafa86f4ab7229cee03ebdd5c24fe702", [:mix, :rebar3], [{:elixir_make, "~> 0.4", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},

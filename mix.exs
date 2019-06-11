@@ -32,7 +32,7 @@ defmodule Silicon.MixProject do
       {:libdecaf, "~> 1.0"},
       {:libsecp256k1, "~> 0.1.10"},
       {:keccakf1600, "~> 2.0", hex: :keccakf1600_orig},
-      {:blake2_elixir, git: "https://github.com/riverrun/blake2_elixir.git"},
+      {:blake2_elixir, "~> 0.8"},
       {:poison, "~> 3.1", only: [:dev, :test]},
       {:yaml_elixir, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.0.0", only: [:dev, :test]},
